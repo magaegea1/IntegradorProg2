@@ -33,26 +33,14 @@ public class Menu {
         pedidoService = new PedidoService(usuarioService, productoService);
     }
 
-    // Getters para las pruebas opcionales en el main para el video (entrega del TPI)
-    public CategoriaService getCategoriaService() {
-        return categoriaService;
-    }
+    // Getters para pruebas en el Main
+    public CategoriaService getCategoriaService() { return categoriaService; }
+    public ProductoService getProductoService() { return productoService; }
+    public UsuarioService getUsuarioService() { return usuarioService; }
+    public PedidoService getPedidoService() { return pedidoService; }
 
-    public ProductoService getProductoService() {
-        return productoService;
-    }
-
-    public UsuarioService getUsuarioService() {
-        return usuarioService;
-    }
-
-    public PedidoService getPedidoService() {
-        return pedidoService;
-    }
-
-    
     // ============================
-    // MÉTODO PRINCIPAL DEL MENÚ
+    // MÉTODO PRINCIPAL
     // ============================
     public void iniciar() {
         int opcion;
@@ -81,7 +69,7 @@ public class Menu {
     }
 
     // ============================
-    // SUBMENÚ CATEGORÍAS
+    // CATEGORÍAS
     // ============================
     private void menuCategorias() {
         int opcion;
@@ -146,15 +134,11 @@ public class Menu {
 
         System.out.print("Nuevo nombre (enter para mantener): ");
         String nombre = scanner.nextLine();
-        if (nombre.isEmpty()) {
-            nombre = categoria.getNombre();
-        }
+        if (nombre.isEmpty()) nombre = categoria.getNombre();
 
         System.out.print("Nueva descripción (enter para mantener): ");
         String descripcion = scanner.nextLine();
-        if (descripcion.isEmpty()) {
-            descripcion = categoria.getDescripcion();
-        }
+        if (descripcion.isEmpty()) descripcion = categoria.getDescripcion();
 
         try {
             boolean ok = categoriaService.editar(id, nombre, descripcion);
@@ -182,9 +166,8 @@ public class Menu {
         }
     }
 
-
     // ============================
-    // SUBMENÚ PRODUCTOS
+    // PRODUCTOS
     // ============================
     private void menuProductos() {
         int opcion;
@@ -272,12 +255,17 @@ public class Menu {
         System.out.print("Nueva categoría (enter para mantener): ");
         String catStr = scanner.nextLine();
 
-        Double precio = precioStr.isEmpty() ? null : Double.parseDouble(precioStr);
-        Integer stock = stockStr.isEmpty() ? null : Integer.parseInt(stockStr);
-
+        Double precio = null;
+        Integer stock = null;
         Categoria cat = null;
-        if (!catStr.isEmpty()) {
-            cat = categoriaService.buscarPorId(Long.parseLong(catStr));
+
+        try {
+            if (!precioStr.isEmpty()) precio = Double.parseDouble(precioStr);
+            if (!stockStr.isEmpty()) stock = Integer.parseInt(stockStr);
+            if (!catStr.isEmpty()) cat = categoriaService.buscarPorId(Long.parseLong(catStr));
+        } catch (Exception e) {
+            System.out.println("Error: valores inválidos.");
+            return;
         }
 
         boolean ok = productoService.editar(id, precio, stock, cat);
@@ -299,7 +287,7 @@ public class Menu {
     }
 
     // ============================
-    // SUBMENÚ USUARIOS
+    // USUARIOS
     // ============================
     private void menuUsuarios() {
         int opcion;
@@ -333,7 +321,10 @@ public class Menu {
             System.out.println("No hay usuarios cargados.");
             return;
         }
-        lista.forEach(System.out::println);
+        lista.forEach(u -> System.out.printf(
+            "ID: %d - %s %s - %s\n",
+            u.getId(), u.getNombre(), u.getApellido(), u.getMail()
+        ));
     }
 
     private void crearUsuario() {
@@ -393,7 +384,7 @@ public class Menu {
     }
 
     // ============================
-    // SUBMENÚ PEDIDOS
+    // PEDIDOS
     // ============================
     private void menuPedidos() {
         int opcion;
@@ -437,19 +428,29 @@ public class Menu {
 
         List<DetallePedido> detalles = new ArrayList<>();
 
-        String continuar = "";
+        String continuar = "S";   // inicializada
         do {
             listarProductosConId();
 
             System.out.print("ID producto: ");
             Long idProd = leerLong();
 
-            System.out.print("Cantidad: ");
-            int cantidad = leerEntero();
-
             Producto prod = productoService.buscarPorId(idProd);
             if (prod == null || prod.isEliminado()) {
                 System.out.println("Producto inválido.");
+                continue;
+            }
+
+            System.out.print("Cantidad: ");
+            int cantidad = leerEntero();
+
+            if (cantidad <= 0) {
+                System.out.println("Cantidad inválida.");
+                continue;
+            }
+
+            if (cantidad > prod.getStock()) {
+                System.out.println("Stock insuficiente.");
                 continue;
             }
 
@@ -474,12 +475,12 @@ public class Menu {
 
         if (nuevo != null) {
             System.out.println("Pedido creado con ID: " + nuevo.getId());
+            System.out.println("Total: $" + nuevo.getTotal());
         } else {
             System.out.println("Error al crear el pedido.");
         }
     }
 
-    // Método de listar productos para usar al hacer el pedido
     private void listarProductosConId() {
         System.out.println("=== Productos disponibles ===");
         for (Producto p : productoService.listar()) {
@@ -493,7 +494,6 @@ public class Menu {
             );
         }
     }
-
 
     private void actualizarPedido() {
         listarPedidos();
