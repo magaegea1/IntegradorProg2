@@ -439,7 +439,8 @@ public class Menu {
 
         String continuar = "";
         do {
-            listarProductos();
+            listarProductosConId();
+
             System.out.print("ID producto: ");
             Long idProd = leerLong();
 
@@ -475,6 +476,21 @@ public class Menu {
             System.out.println("Pedido creado con ID: " + nuevo.getId());
         } else {
             System.out.println("Error al crear el pedido.");
+        }
+    }
+
+    // Método de listar productos para usar al hacer el pedido
+    private void listarProductosConId() {
+        System.out.println("=== Productos disponibles ===");
+        for (Producto p : productoService.listar()) {
+            System.out.printf(
+                "ID: %d - %s - $%.2f - Stock: %d - Categoría: %s\n",
+                p.getId(),
+                p.getNombre(),
+                p.getPrecio(),
+                p.getStock(),
+                p.getCategoria().getNombre()
+            );
         }
     }
 
