@@ -16,7 +16,6 @@ import Prog2.interfaces.Calculable;
  * @author magae
  */
 
-
 public class Pedido extends Base implements Calculable {
 
     // Atributos
@@ -63,7 +62,7 @@ public class Pedido extends Base implements Calculable {
     }
 
     public List<DetallePedido> getDetalles() {
-        return detalles; // importante: NO copyOf()
+        return detalles;
     }
 
     public Usuario getUsuario() {
@@ -87,22 +86,69 @@ public class Pedido extends Base implements Calculable {
         this.total = total;
     }
 
-    // Método de la interfaz (vacío)
+    // ============================================================
+    // IMPLEMENTACIÓN DE Calculable (OBLIGATORIO)
+    // ============================================================
     @Override
     public void calcularTotal() {
-        // la lógica va en PedidoService
+        double suma = 0.0;
+        for (DetallePedido det : detalles) {
+            if (!det.isEliminado()) {
+                suma += det.getSubtotal();
+            }
+        }
+        this.total = suma;
     }
 
-    // Métido addDetallePedido vacío - la lógica va en PedidoService
+    // ============================================================
+    // MÉTODO OBLIGATORIO DEL UML: addDetallePedido
+    // ============================================================
     public void addDetallePedido(int cantidad, Double subtotal, Producto producto) {
+        DetallePedido det = new DetallePedido(cantidad, subtotal, producto);
+        this.detalles.add(det);
+    }
+
+    // ============================================================
+    // MÉTODO OBLIGATORIO DEL UML: findDetallePedidoByProducto
+    // ============================================================
+    public DetallePedido findDetallePedidoByProducto(Producto producto) {
+        for (DetallePedido d : detalles) {
+            if (d.getProducto() != null && d.getProducto().equals(producto)) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    // ============================================================
+    // MÉTODO OBLIGATORIO DEL UML: deleteDetallePedidoByProducto
+    // ============================================================
+    public void deleteDetallePedidoByProducto(Producto producto) {
+        detalles.removeIf(d -> d.getProducto() != null && d.getProducto().equals(producto));
+    }
+
+    // ============================================================
+    // COMPOSICIÓN (OPCIONAL PERO PROFESIONAL)
+    // Si el pedido se elimina, sus detalles también.
+    // ============================================================
+    public void eliminarDetalles() {
+        for (DetallePedido d : detalles) {
+            d.setEliminado(true);
+        }
     }
 
     // toString
     @Override
     public String toString() {
         return String.format(
-            "Pedido{id=%d, fecha=%s, estado=%s, formaPago=%s, total=%.2f}",
-            getId(), fecha, estado, formaPago, total
+            "Pedido{id=%d, fecha=%s, estado=%s, formaPago=%s, total=%.2f, detalles=%d, usuario=%s}",
+            getId(),
+            fecha,
+            estado,
+            formaPago,
+            total,
+            detalles.size(),
+            usuario != null ? usuario.getNombre() + " " + usuario.getApellido() : "Sin usuario"
         );
     }
 }
