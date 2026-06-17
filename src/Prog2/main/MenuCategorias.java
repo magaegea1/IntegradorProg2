@@ -1,0 +1,134 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package Prog2.main;
+
+import Prog2.entities.Categoria;
+import Prog2.service.CategoriaService;
+import Prog2.service.ProductoService;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ *
+ * @author magae
+ */
+
+public class MenuCategorias {
+
+    private Scanner scanner;
+    private CategoriaService categoriaService;
+    private ProductoService productoService;
+
+    public MenuCategorias(Scanner scanner, CategoriaService categoriaService, ProductoService productoService) {
+        this.scanner = scanner;
+        this.categoriaService = categoriaService;
+        this.productoService = productoService;
+    }
+
+    public void iniciar() {
+        int opcion;
+
+        do {
+            System.out.println("\n=== CATEGORÍAS ===");
+            System.out.println("1. Listar");
+            System.out.println("2. Crear");
+            System.out.println("3. Editar");
+            System.out.println("4. Eliminar");
+            System.out.println("0. Volver");
+            System.out.print("Seleccione: ");
+
+            opcion = leerEntero();
+
+            switch (opcion) {
+                case 1 -> listar();
+                case 2 -> crear();
+                case 3 -> editar();
+                case 4 -> eliminar();
+                case 0 -> {}
+                default -> System.out.println("Opción inválida.");
+            }
+
+        } while (opcion != 0);
+    }
+
+    private void listar() {
+        List<Categoria> lista = categoriaService.listar();
+        if (lista.isEmpty()) {
+            System.out.println("No hay categorías cargadas.");
+            return;
+        }
+        lista.forEach(System.out::println);
+    }
+
+    private void crear() {
+        System.out.print("Nombre: ");
+        String nombre = scanner.nextLine();
+
+        System.out.print("Descripción: ");
+        String descripcion = scanner.nextLine();
+
+        try {
+            Categoria nueva = categoriaService.crear(nombre, descripcion);
+            System.out.println("Categoría creada con ID: " + nueva.getId());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void editar() {
+        listar();
+        System.out.print("ID a editar: ");
+        Long id = leerLong();
+
+        Categoria categoria = categoriaService.buscarPorId(id);
+        if (categoria == null || categoria.isEliminado()) {
+            System.out.println("Categoría no encontrada o eliminada.");
+            return;
+        }
+
+        System.out.print("Nuevo nombre (enter para mantener): ");
+        String nombre = scanner.nextLine();
+        if (nombre.isEmpty()) nombre = categoria.getNombre();
+
+        System.out.print("Nueva descripción (enter para mantener): ");
+        String descripcion = scanner.nextLine();
+        if (descripcion.isEmpty()) descripcion = categoria.getDescripcion();
+
+        try {
+            boolean ok = categoriaService.editar(id, nombre, descripcion);
+            System.out.println(ok ? "Categoría actualizada." : "No se pudo actualizar.");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void eliminar() {
+        listar();
+        System.out.print("ID a eliminar: ");
+        Long id = leerLong();
+
+        System.out.print("Confirmar (S/N): ");
+        String conf = scanner.nextLine();
+
+        if (conf.equalsIgnoreCase("S")) {
+            try {
+                boolean ok = categoriaService.eliminar(id, productoService.listar());
+                System.out.println(ok ? "Categoría eliminada." : "No se pudo eliminar.");
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    private int leerEntero() {
+        try { return Integer.parseInt(scanner.nextLine()); }
+        catch (Exception e) { return -1; }
+    }
+
+    private Long leerLong() {
+        try { return Long.parseLong(scanner.nextLine()); }
+        catch (Exception e) { return -1L; }
+    }
+}

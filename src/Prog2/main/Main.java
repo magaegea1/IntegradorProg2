@@ -4,18 +4,19 @@
  */
 package Prog2.main;
 
-import Prog2.main.Menu;
+import Prog2.entities.Categoria;
+
 
 /**
  *
  * @author magae
  */
 
-import Prog2.entities.Categoria;
-
 public class Main {
     public static void main(String[] args) {
-        Menu menu = new Menu();
+
+        // Crear menú principal
+        MenuPrincipal menu = new MenuPrincipal();
 
         // Datos de prueba para el video
         menu.getCategoriaService().crear("Hamburguesas", "Variedad de hamburguesas");
@@ -34,5 +35,4 @@ public class Main {
         menu.iniciar();
     }
 }
-
 
