@@ -28,12 +28,12 @@ public class Pedido extends Base implements Calculable {
     private Usuario usuario;
 
     // Constructor completo
-    public Pedido(FormaPago formaPago, Usuario usuario) {
+    public Pedido(Usuario usuario, FormaPago formaPago) {
         super();
         this.fecha = LocalDate.now();
         this.estado = Estado.PENDIENTE;
-        this.formaPago = formaPago;
         this.usuario = usuario;
+        this.formaPago = formaPago;
         this.detalles = new ArrayList<>();
         this.total = 0.0;
     }

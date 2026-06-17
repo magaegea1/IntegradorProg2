@@ -40,5 +40,20 @@ public class Validaciones {
             throw new IllegalArgumentException("El campo: " + campo + ", no puede ser negativo");
         }        
     }   
+    
+    // Validar el formato del e-mail 
+    public static void validarEmailBasico(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío.");
+        }
+
+        int arroba = email.indexOf("@");
+        int punto = email.lastIndexOf(".");
+
+        if (arroba < 1 || punto < arroba + 2 || punto == email.length() - 1) {
+            throw new IllegalArgumentException("Formato de email inválido.");
+        }
+    }
+
         
 }
