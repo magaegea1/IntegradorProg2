@@ -6,6 +6,7 @@ package Prog2.service;
 
 import Prog2.entities.DetallePedido;
 import Prog2.entities.Pedido;
+import Prog2.entities.Producto;
 import Prog2.entities.Usuario;
 import Prog2.enums.Estado;
 import Prog2.enums.FormaPago;
@@ -16,7 +17,9 @@ import java.util.List;
  *
  * @author magae
  */
+
 public class PedidoService {
+
     // Atributos
     private List<Pedido> pedidos;
     private UsuarioService usuarioService;
@@ -45,9 +48,9 @@ public class PedidoService {
     // ============================
     // BUSCAR POR ID
     // ============================
-    public Pedido buscarPorId(int id) {
+    public Pedido buscarPorId(Long id) {
         for (Pedido p : pedidos) {
-            if (p.getId() == id) {
+            if (p.getId().equals(id)) {
                 return p;
             }
         }
@@ -57,7 +60,7 @@ public class PedidoService {
     // ============================
     // CREAR (HU-PED-02)
     // ============================
-    public Pedido crear(int idUsuario, List<DetallePedido> detalles, FormaPago formaPago) {
+    public Pedido crear(Long idUsuario, List<DetallePedido> detalles, FormaPago formaPago) {
 
         // 1. Validar usuario
         Usuario usuario = usuarioService.buscarPorId(idUsuario);
@@ -74,35 +77,67 @@ public class PedidoService {
                 agregarDetalle(nuevo, d.getProducto().getId(), d.getCantidad());
             }
 
-            // 4. Calcular total usando la interfaz Calculable
-            nuevo.calcularTotal();
+            // 4. Calcular total
+            calcularTotal(nuevo);
 
-            // 5. Agregar a la colección
+            // 5. Guardar pedido
             pedidos.add(nuevo);
 
             return nuevo;
 
         } catch (Exception e) {
-            // 6. Si algo falla, cancelar creación
+            System.out.println("Error al crear el pedido: " + e.getMessage());
             return null;
         }
     }
 
-
     // ============================
     // AGREGAR DETALLE (interno)
     // ============================
-    private void agregarDetalle(Pedido pedido, int idProducto, int cantidad) {
+    private void agregarDetalle(Pedido pedido, Long idProducto, int cantidad) {
+
         // 1. Validar producto
+        Producto prod = productoService.buscarPorId(idProducto);
+        if (prod == null || prod.isEliminado()) {
+            throw new IllegalArgumentException("El producto no existe o está eliminado.");
+        }
+
         // 2. Validar stock
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
+        }
+        if (prod.getStock() < cantidad) {
+            throw new IllegalArgumentException("Stock insuficiente para el producto: " + prod.getNombre());
+        }
+
         // 3. Crear detalle
-        // 4. pedido.addDetallePedido(...)
+        double subtotal = prod.getPrecio() * cantidad;
+        DetallePedido det = new DetallePedido(cantidad, subtotal, prod);
+
+        // 4. Agregar al pedido
+        pedido.getDetalles().add(det);
+
+        // 5. Descontar stock
+        prod.setStock(prod.getStock() - cantidad);
     }
 
     // ============================
-    // ACTUALIZAR ESTADO / FORMA DE PAGO (HU-PED-03)
+    // CALCULAR TOTAL
     // ============================
-    public boolean actualizar(int idPedido, Estado nuevoEstado, FormaPago nuevaFormaPago) {
+    private void calcularTotal(Pedido pedido) {
+        double total = 0.0;
+
+        for (DetallePedido det : pedido.getDetalles()) {
+            total += det.getSubtotal();
+        }
+
+        pedido.setTotal(total);
+    }
+
+    // ============================
+    // ACTUALIZAR (HU-PED-03)
+    // ============================
+    public boolean actualizar(Long idPedido, Estado nuevoEstado, FormaPago nuevaFormaPago) {
 
         Pedido p = buscarPorId(idPedido);
 
@@ -110,7 +145,13 @@ public class PedidoService {
             return false;
         }
 
-        // Actualizar estado y/o forma de pago
+        if (nuevoEstado != null) {
+            p.setEstado(nuevoEstado);
+        }
+
+        if (nuevaFormaPago != null) {
+            p.setFormaPago(nuevaFormaPago);
+        }
 
         return true;
     }
@@ -118,7 +159,7 @@ public class PedidoService {
     // ============================
     // ELIMINAR (HU-PED-04)
     // ============================
-    public boolean eliminar(int id) {
+    public boolean eliminar(Long id) {
 
         Pedido p = buscarPorId(id);
 
@@ -127,48 +168,7 @@ public class PedidoService {
         }
 
         p.setEliminado(true);
-
-        // Opcional: marcar detalles como eliminados también
-
         return true;
     }
 }
-/*1. Completar PedidoService — método CREAR()
-Este es el más largo, pero lo hacemos juntas paso a paso.
 
-Incluye:
-
-validar usuario
-
-crear pedido vacío
-
-agregar detalles
-
-validar stock
-
-calcular total
-
-manejar errores
-
-agregar a la colección
-
-Yo te voy a dar el código exacto, no te preocupes.
-
-2. Completar método interno agregarDetalle()
-Este método es clave porque:
-
-valida producto
-
-valida stock
-
-crea detalle
-
-usa addDetallePedido()
-
-También te lo doy yo.
-
-3. Completar actualizar() (estado y forma de pago)
-Este es cortito.
-
-4. Completar eliminar()
-Ya lo tenés casi listo.*/

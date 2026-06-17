@@ -61,9 +61,9 @@ public class ProductoService {
     // ============================
     // BUSCAR POR ID
     // ============================
-    public Producto buscarPorId(int id) {
+    public Producto buscarPorId(Long id) {
         for (Producto p : productos) {
-            if (p.getId() == id)
+            if (p.getId().equals(id))
                 return p;
         }
         return null;
@@ -100,18 +100,22 @@ public class ProductoService {
                 categoria
         );
 
-        // Agregar a la colección
+        // Agregar a la colección de productos
         productos.add(nuevo);
+
+        // VINCULAR A LA CATEGORÍA
+        categoria.agregarProducto(nuevo);
 
         return nuevo;
     }
+
 
     // ============================
     // EDITAR HU-PROD-03
     // ============================
     // Cambiar tipos primitivos a tipos objeto para permitir null
 
-    public boolean editar(int id, Double precio, Integer stock, Categoria categoria) {
+    public boolean editar(Long id, Double precio, Integer stock, Categoria categoria) {
 
         Producto producto = buscarPorId(id);
 
@@ -151,7 +155,7 @@ public class ProductoService {
     // Servicio producto no se encarga de revisar si un producto está en algún pedido porque
     // no tiene acceso por la arquitectura del diseño
 
-    public boolean eliminar(int id) {
+    public boolean eliminar(Long id) {
         Producto producto = buscarPorId(id);
 
         if (producto == null || producto.isEliminado()) {

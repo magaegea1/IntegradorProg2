@@ -15,7 +15,7 @@ import java.util.List;
  * @author magae
  */
 public class UsuarioService {
-        // Atributos
+    // Atributos
     private List<Usuario> usuarios;
 
     // Constructor
@@ -84,9 +84,9 @@ public class UsuarioService {
     // ============================
     // BUSCAR POR ID
     // ============================
-    public Usuario buscarPorId(int id) {
+    public Usuario buscarPorId(Long id) {
         for (Usuario u : usuarios) {
-            if (u.getId() == id) {
+            if (u.getId().equals(id)) {
                 return u;
             }
         }
@@ -97,7 +97,7 @@ public class UsuarioService {
     // EDITAR (HU-USR-03)
     // ============================
 
-    public boolean editar(int id, String nuevoNombre, String nuevoApellido, 
+    public boolean editar(Long id, String nuevoNombre, String nuevoApellido, 
         String nuevoMail, String nuevoCelular) {
 
         Usuario u = buscarPorId(id);
@@ -145,7 +145,7 @@ public class UsuarioService {
     // ELIMINAR (HU-USR-04)
     // ============================
 
-    public boolean eliminar(int id) {
+    public boolean eliminar(Long id) {
 
         Usuario u = buscarPorId(id);
 

@@ -60,9 +60,9 @@ public class CategoriaService {
     // ============================
     // BUSCAR POR ID
     // ============================
-    public Categoria buscarPorId(int id) {
+    public Categoria buscarPorId(Long id) {
         for (Categoria c : categorias) {
-            if (c.getId() == id) {
+            if (c.getId().equals(id)) {
                 return c;
             }
         }
@@ -72,7 +72,7 @@ public class CategoriaService {
     // ============================
     // EDITAR (HU-CAT-03)
     // ============================
-    public boolean editar(int id, String nuevoNombre, String nuevaDescripcion) {
+    public boolean editar(Long id, String nuevoNombre, String nuevaDescripcion) {
 
         Categoria categoria = buscarPorId(id);
 
@@ -102,7 +102,7 @@ public class CategoriaService {
     // ============================
     // ELIMINAR (HU-CAT-04)
     // ============================
-    public boolean eliminar(int id, List<Producto> productos) {
+    public boolean eliminar(Long id, List<Producto> productos) {
 
         Categoria categoria = buscarPorId(id);
 

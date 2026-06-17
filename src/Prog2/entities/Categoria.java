@@ -17,7 +17,7 @@ public class Categoria extends Base {
     // Atributos propios
     private String nombre;
     private String descripcion;
-    private List<Producto> productos;
+    private List<Producto> productos;   // Relación 1:N con Producto
 
     // Constructor completo
     public Categoria(String nombre, String descripcion) {
@@ -46,7 +46,7 @@ public class Categoria extends Base {
         return productos;
     }
 
-    // Setters (sin validaciones internas)
+    // Setters
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -55,7 +55,7 @@ public class Categoria extends Base {
         this.descripcion = descripcion;
     }
 
-    // Método propio (sin validaciones ni lógica cruzada)
+    // Método propio: agregar producto a la categoría
     public void agregarProducto(Producto producto) {
         if (producto != null) {
             this.productos.add(producto);

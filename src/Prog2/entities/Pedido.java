@@ -93,6 +93,10 @@ public class Pedido extends Base implements Calculable {
         // la lógica va en PedidoService
     }
 
+    // Métido addDetallePedido vacío - la lógica va en PedidoService
+    public void addDetallePedido(int cantidad, Double subtotal, Producto producto) {
+    }
+
     // toString
     @Override
     public String toString() {
