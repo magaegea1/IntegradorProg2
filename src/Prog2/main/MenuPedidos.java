@@ -25,11 +25,6 @@ import java.util.Scanner;
  * @author magae
  */
 
-/**
- * Menú para gestionar pedidos.
- * Permite listar, crear, actualizar estado/forma de pago y eliminar pedidos.
- * Interactúa con PedidoService, UsuarioService y ProductoService.
- */
 public class MenuPedidos {
 
     private Scanner scanner;
@@ -37,7 +32,6 @@ public class MenuPedidos {
     private UsuarioService usuarioService;
     private ProductoService productoService;
 
-    // Constructor
     public MenuPedidos(Scanner scanner, PedidoService pedidoService,
                        UsuarioService usuarioService, ProductoService productoService) {
         this.scanner = scanner;
@@ -58,6 +52,7 @@ public class MenuPedidos {
             System.out.println("2. Crear");
             System.out.println("3. Actualizar estado / forma de pago");
             System.out.println("4. Eliminar");
+            System.out.println("5. Ver pedido completo");
             System.out.println("0. Volver");
             System.out.print("Seleccione: ");
 
@@ -68,6 +63,7 @@ public class MenuPedidos {
                 case 2 -> crear();
                 case 3 -> actualizar();
                 case 4 -> eliminar();
+                case 5 -> verPedidoCompleto();
                 case 0 -> {}
                 default -> System.out.println("Opción inválida.");
             }
@@ -85,6 +81,42 @@ public class MenuPedidos {
             return;
         }
         lista.forEach(System.out::println);
+    }
+
+    // ============================
+    // VER PEDIDO COMPLETO
+    // ============================
+    private void verPedidoCompleto() {
+        System.out.print("Ingrese el ID del pedido: ");
+        Long id = leerLong();
+
+        Pedido p = pedidoService.buscarPorId(id);
+
+        if (p == null) {
+            System.out.println("El pedido no existe o está eliminado.");
+            return;
+        }
+
+        System.out.println("\n=== DETALLE COMPLETO DEL PEDIDO ===");
+        System.out.println("ID: " + p.getId());
+        System.out.println("Usuario: " + p.getUsuario().getNombre() + " " + p.getUsuario().getApellido());
+        System.out.println("Estado: " + p.getEstado());
+        System.out.println("Forma de pago: " + p.getFormaPago());
+        System.out.println("Fecha: " + p.getFecha());
+        System.out.println("Total: $" + p.getTotal());
+
+        System.out.println("\n--- DETALLES ---");
+        if (p.getDetalles().isEmpty()) {
+            System.out.println("Este pedido no tiene detalles.");
+        } else {
+            for (DetallePedido d : p.getDetalles()) {
+                System.out.println("Producto: " + d.getProducto().getNombre());
+                System.out.println("Cantidad: " + d.getCantidad());
+                System.out.println("Precio unitario: $" + d.getProducto().getPrecio());
+                System.out.println("Subtotal: $" + d.getSubtotal());
+                System.out.println("-------------------------");
+            }
+        }
     }
 
     // ============================
@@ -260,4 +292,3 @@ public class MenuPedidos {
         catch (Exception e) { return -1L; }
     }
 }
-

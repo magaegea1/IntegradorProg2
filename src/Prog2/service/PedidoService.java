@@ -21,20 +21,12 @@ import java.util.List;
  * @author magae
  */
 
-/**
- * Servicio encargado de gestionar las operaciones relacionadas con Pedido.
- * Implementa las historias de usuario HU-PED-01 a HU-PED-04.
- */
 public class PedidoService {
 
-    // Lista interna que almacena todos los pedidos (activos y eliminados).
     private List<Pedido> pedidos;
-
-    // Dependencias necesarias para validar usuario y productos.
     private UsuarioService usuarioService;
     private ProductoService productoService;
 
-    // Constructor
     public PedidoService(UsuarioService usuarioService, ProductoService productoService) {
         this.pedidos = new ArrayList<>();
         this.usuarioService = usuarioService;
@@ -43,7 +35,6 @@ public class PedidoService {
 
     // ============================
     // LISTAR (HU-PED-01)
-    // Devuelve solo pedidos activos.
     // ============================
     public List<Pedido> listar() {
         List<Pedido> activos = new ArrayList<>();
@@ -57,7 +48,6 @@ public class PedidoService {
 
     // ============================
     // BUSCAR POR ID
-    // Devuelve el pedido si existe y no está eliminado.
     // ============================
     public Pedido buscarPorId(Long id) {
         for (Pedido p : pedidos) {
@@ -70,7 +60,6 @@ public class PedidoService {
 
     // ============================
     // CREAR (HU-PED-02)
-    // Valida usuario, agrega detalles, calcula total y guarda el pedido.
     // ============================
     public Pedido crear(Long idUsuario, List<DetallePedido> detalles, FormaPago formaPago) {
 
@@ -99,7 +88,6 @@ public class PedidoService {
 
     // ============================
     // AGREGAR DETALLE (interno)
-    // Valida producto, stock y agrega el detalle al pedido.
     // ============================
     private void agregarDetalle(Pedido pedido, Long idProducto, int cantidad) {
 
@@ -123,18 +111,16 @@ public class PedidoService {
 
         // 4. Crear detalle
         double subtotal = prod.getPrecio() * cantidad;
-        DetallePedido det = new DetallePedido(cantidad, subtotal, prod);
 
-        // 5. Agregar al pedido (composición)
-        pedido.getDetalles().add(det);
+        // 5. Agregar al pedido usando el método del UML
+        pedido.addDetallePedido(cantidad, subtotal, prod);
 
-        // 6. Descontar stock
+        // 6. Descontar stock SOLO si todo salió bien
         prod.setStock(prod.getStock() - cantidad);
     }
 
     // ============================
     // CALCULAR TOTAL
-    // Suma los subtotales de cada detalle.
     // ============================
     private void calcularTotal(Pedido pedido) {
         double total = 0.0;
@@ -148,7 +134,6 @@ public class PedidoService {
 
     // ============================
     // ACTUALIZAR (HU-PED-03)
-    // Permite modificar estado o forma de pago.
     // ============================
     public boolean actualizar(Long idPedido, Estado nuevoEstado, FormaPago nuevaFormaPago) {
 
@@ -171,7 +156,6 @@ public class PedidoService {
 
     // ============================
     // ELIMINAR (HU-PED-04)
-    // Baja lógica del pedido.
     // ============================
     public boolean eliminar(Long id) {
 
@@ -185,3 +169,4 @@ public class PedidoService {
         return true;
     }
 }
+
