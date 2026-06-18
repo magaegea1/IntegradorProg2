@@ -9,7 +9,7 @@ package Prog2.exception;
  * @author magae
  */
 public class StockInsuficienteException extends RuntimeException {
-    public StockInsuficienteException(String msg) {
-        super(msg);
+    public StockInsuficienteException(String mensaje) {
+        super(mensaje);
     }
 }

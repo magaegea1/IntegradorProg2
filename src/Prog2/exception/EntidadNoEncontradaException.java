@@ -9,7 +9,7 @@ package Prog2.exception;
  * @author magae
  */
 public class EntidadNoEncontradaException extends RuntimeException {
-    public EntidadNoEncontradaException(String msg) {
-        super(msg);
+    public EntidadNoEncontradaException(String mensaje) {
+        super(mensaje);
     }
 }

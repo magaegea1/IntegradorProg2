@@ -9,7 +9,7 @@ package Prog2.exception;
  * @author magae
  */
 public class DatoInvalidoException extends RuntimeException {
-    public DatoInvalidoException(String msg) {
-        super(msg);
+    public DatoInvalidoException(String mensaje) {
+        super(mensaje);
     }
 }
