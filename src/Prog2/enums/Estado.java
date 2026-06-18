@@ -8,6 +8,11 @@ package Prog2.enums;
  *
  * @author magae
  */
+
+/**
+ * estados disponibles para un Pedido según el UML.
+ */
+
 public enum Estado {
     PENDIENTE,
     CONFIRMADO,

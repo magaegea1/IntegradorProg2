@@ -5,6 +5,9 @@
 package Prog2.main;
 
 import Prog2.entities.Categoria;
+import Prog2.exception.DatoInvalidoException;
+import Prog2.exception.EntidadNoEncontradaException;
+import Prog2.exception.OperacionNoPermitidaException;
 import Prog2.service.CategoriaService;
 import Prog2.service.ProductoService;
 import java.util.List;
@@ -17,10 +20,12 @@ import java.util.Scanner;
 
 public class MenuCategorias {
 
+    // Atributos
     private Scanner scanner;
     private CategoriaService categoriaService;
     private ProductoService productoService;
 
+    // Constructor
     public MenuCategorias(Scanner scanner, CategoriaService categoriaService, ProductoService productoService) {
         this.scanner = scanner;
         this.categoriaService = categoriaService;
@@ -72,7 +77,7 @@ public class MenuCategorias {
         try {
             Categoria nueva = categoriaService.crear(nombre, descripcion);
             System.out.println("Categoría creada con ID: " + nueva.getId());
-        } catch (Exception e) {
+        } catch (DatoInvalidoException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -82,24 +87,25 @@ public class MenuCategorias {
         System.out.print("ID a editar: ");
         Long id = leerLong();
 
-        Categoria categoria = categoriaService.buscarPorId(id);
-        if (categoria == null || categoria.isEliminado()) {
-            System.out.println("Categoría no encontrada o eliminada.");
-            return;
-        }
-
         System.out.print("Nuevo nombre (enter para mantener): ");
         String nombre = scanner.nextLine();
-        if (nombre.isEmpty()) nombre = categoria.getNombre();
 
         System.out.print("Nueva descripción (enter para mantener): ");
         String descripcion = scanner.nextLine();
-        if (descripcion.isEmpty()) descripcion = categoria.getDescripcion();
 
         try {
-            boolean ok = categoriaService.editar(id, nombre, descripcion);
-            System.out.println(ok ? "Categoría actualizada." : "No se pudo actualizar.");
-        } catch (Exception e) {
+            Categoria actual = categoriaService.buscarPorId(id);
+            if (actual == null || actual.isEliminado()) {
+                throw new EntidadNoEncontradaException("La categoría no existe o está eliminada.");
+            }
+
+            if (nombre.isEmpty()) nombre = actual.getNombre();
+            if (descripcion.isEmpty()) descripcion = actual.getDescripcion();
+
+            categoriaService.editar(id, nombre, descripcion);
+            System.out.println("Categoría actualizada.");
+
+        } catch (DatoInvalidoException | EntidadNoEncontradaException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -114,9 +120,9 @@ public class MenuCategorias {
 
         if (conf.equalsIgnoreCase("S")) {
             try {
-                boolean ok = categoriaService.eliminar(id, productoService.listar());
-                System.out.println(ok ? "Categoría eliminada." : "No se pudo eliminar.");
-            } catch (Exception e) {
+                categoriaService.eliminar(id, productoService.listar());
+                System.out.println("Categoría eliminada.");
+            } catch (EntidadNoEncontradaException | OperacionNoPermitidaException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }
@@ -132,3 +138,4 @@ public class MenuCategorias {
         catch (Exception e) { return -1L; }
     }
 }
+

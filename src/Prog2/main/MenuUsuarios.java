@@ -5,6 +5,8 @@
 package Prog2.main;
 
 import Prog2.entities.Usuario;
+import Prog2.exception.DatoInvalidoException;
+import Prog2.exception.EntidadNoEncontradaException;
 import Prog2.service.UsuarioService;
 import java.util.List;
 import java.util.Scanner;
@@ -14,16 +16,27 @@ import java.util.Scanner;
  * @author magae
  */
 
-public class MenuUsuarios {
+/**
+ * Menú para gestionar usuarios.
+ * Permite listar, crear, editar y eliminar usuarios.
+ * Interactúa con UsuarioService.
+ */
 
+public class MenuUsuarios {
+    
+    // Atributos
     private Scanner scanner;
     private UsuarioService usuarioService;
 
+    // Constructor
     public MenuUsuarios(Scanner scanner, UsuarioService usuarioService) {
         this.scanner = scanner;
         this.usuarioService = usuarioService;
     }
 
+    // ============================
+    // MENÚ PRINCIPAL
+    // ============================
     public void iniciar() {
         int opcion;
 
@@ -50,18 +63,21 @@ public class MenuUsuarios {
         } while (opcion != 0);
     }
 
+    // ============================
+    // LISTAR USUARIOS
+    // ============================
     private void listar() {
         List<Usuario> lista = usuarioService.listar();
         if (lista.isEmpty()) {
             System.out.println("No hay usuarios cargados.");
             return;
         }
-        lista.forEach(u -> System.out.printf(
-            "ID: %d - %s %s - %s\n",
-            u.getId(), u.getNombre(), u.getApellido(), u.getMail()
-        ));
+        lista.forEach(System.out::println);
     }
 
+    // ============================
+    // CREAR USUARIO
+    // ============================
     private void crear() {
         System.out.print("Nombre: ");
         String nombre = scanner.nextLine();
@@ -78,32 +94,52 @@ public class MenuUsuarios {
         try {
             Usuario nuevo = usuarioService.crear(nombre, apellido, mail, celular);
             System.out.println("Usuario creado con ID: " + nuevo.getId());
-        } catch (Exception e) {
+        } catch (DatoInvalidoException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
+    // ============================
+    // EDITAR USUARIO
+    // ============================
     private void editar() {
         listar();
         System.out.print("ID a editar: ");
         Long id = leerLong();
 
+        Usuario u = usuarioService.buscarPorId(id);
+        if (u == null || u.isEliminado()) {
+            System.out.println("Usuario no encontrado o eliminado.");
+            return;
+        }
+
         System.out.print("Nuevo nombre (enter para mantener): ");
         String nombre = scanner.nextLine();
+        if (nombre.isEmpty()) nombre = u.getNombre();
 
         System.out.print("Nuevo apellido (enter para mantener): ");
         String apellido = scanner.nextLine();
+        if (apellido.isEmpty()) apellido = u.getApellido();
 
         System.out.print("Nuevo mail (enter para mantener): ");
         String mail = scanner.nextLine();
+        if (mail.isEmpty()) mail = u.getMail();
 
         System.out.print("Nuevo celular (enter para mantener): ");
         String celular = scanner.nextLine();
+        if (celular.isEmpty()) celular = u.getCelular();
 
-        boolean ok = usuarioService.editar(id, nombre, apellido, mail, celular);
-        System.out.println(ok ? "Usuario actualizado." : "No se pudo actualizar.");
+        try {
+            usuarioService.editar(id, nombre, apellido, mail, celular);
+            System.out.println("Usuario actualizado.");
+        } catch (DatoInvalidoException | EntidadNoEncontradaException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
+    // ============================
+    // ELIMINAR USUARIO
+    // ============================
     private void eliminar() {
         listar();
         System.out.print("ID a eliminar: ");
@@ -113,11 +149,18 @@ public class MenuUsuarios {
         String conf = scanner.nextLine();
 
         if (conf.equalsIgnoreCase("S")) {
-            boolean ok = usuarioService.eliminar(id);
-            System.out.println(ok ? "Usuario eliminado." : "No se pudo eliminar.");
+            try {
+                usuarioService.eliminar(id);
+                System.out.println("Usuario eliminado.");
+            } catch (EntidadNoEncontradaException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
 
+    // ============================
+    // MÉTODOS AUXILIARES DE LECTURA
+    // ============================
     private int leerEntero() {
         try { return Integer.parseInt(scanner.nextLine()); }
         catch (Exception e) { return -1; }
@@ -128,4 +171,3 @@ public class MenuUsuarios {
         catch (Exception e) { return -1L; }
     }
 }
-

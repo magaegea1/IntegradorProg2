@@ -12,6 +12,10 @@ import java.util.List;
  * @author magae
  */
 
+/**
+ * Entidad que representa una categoría de productos.
+ * Hereda ID, eliminado y createdAt desde Base.
+ */
 public class Categoria extends Base {
 
     // Atributos propios
@@ -55,10 +59,15 @@ public class Categoria extends Base {
         this.descripcion = descripcion;
     }
 
-    // Método propio: agregar producto a la categoría
+    /**
+     * Agrega un producto a la categoría.
+     * No valida null porque el Service ya lo hace.
+     */
     public void agregarProducto(Producto producto) {
         if (producto != null) {
             this.productos.add(producto);
+            // Si quisiera mantener bidireccionalidad:
+            // producto.setCategoria(this);
         }
     }
 

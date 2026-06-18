@@ -9,6 +9,11 @@ package Prog2.entities;
  * @author magae
  */
 
+/**
+ * Entidad que representa un detalle dentro de un pedido.
+ * Hereda ID, eliminado y createdAt desde Base.
+ */
+
 public class DetallePedido extends Base {
 
     // Atributos
@@ -24,35 +29,38 @@ public class DetallePedido extends Base {
         this.producto = producto;
     }
 
-    // Constructor vacío para el menú
+    // Constructor vacío para menú
     public DetallePedido() {
         super();
+        this.cantidad = 0;
+        this.subtotal = 0.0;
+        this.producto = null;
     }
 
     // Getters
-    public int getCantidad() {
-        return cantidad;
+    public int getCantidad() { 
+        return cantidad; 
     }
-
-    public Double getSubtotal() {
-        return subtotal;
+    
+    public Double getSubtotal() { 
+        return subtotal; 
     }
-
-    public Producto getProducto() {
-        return producto;
+    
+    public Producto getProducto() { 
+        return producto; 
     }
 
     // Setters (sin lógica de negocio)
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setCantidad(int cantidad) { 
+        this.cantidad = cantidad; 
     }
-
-    public void setSubtotal(Double subtotal) {
-        this.subtotal = subtotal;
+    
+    public void setSubtotal(Double subtotal) { 
+        this.subtotal = subtotal; 
     }
-
-    public void setProducto(Producto producto) {
-        this.producto = producto;
+    
+    public void setProducto(Producto producto) { 
+        this.producto = producto; 
     }
 
     // toString seguro

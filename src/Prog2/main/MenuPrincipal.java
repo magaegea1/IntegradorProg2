@@ -12,39 +12,30 @@ import java.util.Scanner;
  * @author magae
  */
 
+/**
+ * Menú principal del sistema.
+ * Permite acceder a los submenús de Categorías, Productos, Usuarios y Pedidos.
+ * Instancia los servicios y los menús correspondientes.
+ */
 public class MenuPrincipal {
 
     private Scanner scanner = new Scanner(System.in);
 
+    // Servicios principales del sistema
     private CategoriaService categoriaService = new CategoriaService();
     private ProductoService productoService = new ProductoService();
     private UsuarioService usuarioService = new UsuarioService();
     private PedidoService pedidoService = new PedidoService(usuarioService, productoService);
 
+    // Submenús
     private MenuCategorias menuCategorias = new MenuCategorias(scanner, categoriaService, productoService);
     private MenuProductos menuProductos = new MenuProductos(scanner, productoService, categoriaService);
     private MenuUsuarios menuUsuarios = new MenuUsuarios(scanner, usuarioService);
     private MenuPedidos menuPedidos = new MenuPedidos(scanner, pedidoService, usuarioService, productoService);
 
-    // Getters
-    public CategoriaService getCategoriaService() {
-        return categoriaService;
-    }
-
-    public ProductoService getProductoService() {
-        return productoService;
-    }
-
-    public UsuarioService getUsuarioService() {
-        return usuarioService;
-    }
-
-    public PedidoService getPedidoService() {
-        return pedidoService;
-    }
-
-
-
+    // ============================
+    // MÉTODO PRINCIPAL DEL MENÚ
+    // ============================
     public void iniciar() {
         int opcion;
 
@@ -71,6 +62,9 @@ public class MenuPrincipal {
         } while (opcion != 0);
     }
 
+    // ============================
+    // MÉTODO AUXILIAR DE LECTURA
+    // ============================
     private int leerEntero() {
         try {
             return Integer.parseInt(scanner.nextLine());
@@ -79,5 +73,3 @@ public class MenuPrincipal {
         }
     }
 }
-
-

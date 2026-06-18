@@ -8,8 +8,19 @@ package Prog2.exception;
  *
  * @author magae
  */
+
+/**
+ * Excepción propia utilizada para indicar errores de validación
+ * o datos inválidos ingresados por el usuario.
+ */
+
 public class DatoInvalidoException extends RuntimeException {
+
     public DatoInvalidoException(String mensaje) {
         super(mensaje);
+    }
+
+    public DatoInvalidoException(String mensaje, Throwable causa) {
+        super(mensaje, causa);
     }
 }

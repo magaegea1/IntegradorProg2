@@ -8,6 +8,11 @@ package Prog2.enums;
  *
  * @author magae
  */
+
+/**
+ * Roles posibles de un Usuario según el UML del sistema.
+ */
+
 public enum Rol {
     ADMIN,
     USUARIO

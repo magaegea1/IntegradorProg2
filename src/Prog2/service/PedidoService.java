@@ -10,9 +10,12 @@ import Prog2.entities.Producto;
 import Prog2.entities.Usuario;
 import Prog2.enums.Estado;
 import Prog2.enums.FormaPago;
+import Prog2.exception.DatoInvalidoException;
+import Prog2.exception.EntidadNoEncontradaException;
+import Prog2.exception.StockInsuficienteException;
+import Prog2.utils.Validaciones;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  *
  * @author magae
@@ -65,30 +68,24 @@ public class PedidoService {
         // 1. Validar usuario
         Usuario usuario = usuarioService.buscarPorId(idUsuario);
         if (usuario == null || usuario.isEliminado()) {
-            throw new IllegalArgumentException("El usuario no existe o está eliminado.");
+            throw new EntidadNoEncontradaException("El usuario no existe o está eliminado.");
         }
 
         // 2. Crear pedido vacío
         Pedido nuevo = new Pedido(usuario, formaPago);
 
-        try {
-            // 3. Agregar detalles uno por uno
-            for (DetallePedido d : detalles) {
-                agregarDetalle(nuevo, d.getProducto().getId(), d.getCantidad());
-            }
-
-            // 4. Calcular total
-            calcularTotal(nuevo);
-
-            // 5. Guardar pedido
-            pedidos.add(nuevo);
-
-            return nuevo;
-
-        } catch (Exception e) {
-            System.out.println("Error al crear el pedido: " + e.getMessage());
-            return null;
+        // 3. Agregar detalles uno por uno
+        for (DetallePedido d : detalles) {
+            agregarDetalle(nuevo, d.getProducto().getId(), d.getCantidad());
         }
+
+        // 4. Calcular total
+        calcularTotal(nuevo);
+
+        // 5. Guardar pedido
+        pedidos.add(nuevo);
+
+        return nuevo;
     }
 
     // ============================
@@ -99,25 +96,30 @@ public class PedidoService {
         // 1. Validar producto
         Producto prod = productoService.buscarPorId(idProducto);
         if (prod == null || prod.isEliminado()) {
-            throw new IllegalArgumentException("El producto no existe o está eliminado.");
+            throw new EntidadNoEncontradaException("El producto no existe o está eliminado.");
         }
 
-        // 2. Validar stock
+        // 2. Validar cantidad
         if (cantidad <= 0) {
-            throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
-        }
-        if (prod.getStock() < cantidad) {
-            throw new IllegalArgumentException("Stock insuficiente para el producto: " + prod.getNombre());
+            throw new DatoInvalidoException("La cantidad debe ser mayor a 0.");
         }
 
-        // 3. Crear detalle
+        // 3. Validar stock
+        if (prod.getStock() < cantidad) {
+            throw new StockInsuficienteException(
+                "Stock insuficiente para el producto: " + prod.getNombre()
+            );
+        }
+
+        // 4. Crear detalle
         double subtotal = prod.getPrecio() * cantidad;
         DetallePedido det = new DetallePedido(cantidad, subtotal, prod);
 
-        // 4. Agregar al pedido
+        // 5. Agregar al pedido (composición)
         pedido.getDetalles().add(det);
+        pedido.addDetallePedido(cantidad, subtotal, prod);
 
-        // 5. Descontar stock
+        // 6. Descontar stock
         prod.setStock(prod.getStock() - cantidad);
     }
 
@@ -142,7 +144,7 @@ public class PedidoService {
         Pedido p = buscarPorId(idPedido);
 
         if (p == null || p.isEliminado()) {
-            return false;
+            throw new EntidadNoEncontradaException("El pedido no existe o está eliminado.");
         }
 
         if (nuevoEstado != null) {
@@ -164,11 +166,10 @@ public class PedidoService {
         Pedido p = buscarPorId(id);
 
         if (p == null || p.isEliminado()) {
-            return false;
+            throw new EntidadNoEncontradaException("El pedido no existe o ya está eliminado.");
         }
 
         p.setEliminado(true);
         return true;
     }
 }
-

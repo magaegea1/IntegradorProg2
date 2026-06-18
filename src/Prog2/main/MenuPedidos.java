@@ -10,6 +10,9 @@ import Prog2.entities.Producto;
 import Prog2.entities.Usuario;
 import Prog2.enums.Estado;
 import Prog2.enums.FormaPago;
+import Prog2.exception.DatoInvalidoException;
+import Prog2.exception.EntidadNoEncontradaException;
+import Prog2.exception.StockInsuficienteException;
 import Prog2.service.PedidoService;
 import Prog2.service.ProductoService;
 import Prog2.service.UsuarioService;
@@ -22,6 +25,11 @@ import java.util.Scanner;
  * @author magae
  */
 
+/**
+ * Menú para gestionar pedidos.
+ * Permite listar, crear, actualizar estado/forma de pago y eliminar pedidos.
+ * Interactúa con PedidoService, UsuarioService y ProductoService.
+ */
 public class MenuPedidos {
 
     private Scanner scanner;
@@ -29,13 +37,18 @@ public class MenuPedidos {
     private UsuarioService usuarioService;
     private ProductoService productoService;
 
-    public MenuPedidos(Scanner scanner, PedidoService pedidoService, UsuarioService usuarioService, ProductoService productoService) {
+    // Constructor
+    public MenuPedidos(Scanner scanner, PedidoService pedidoService,
+                       UsuarioService usuarioService, ProductoService productoService) {
         this.scanner = scanner;
         this.pedidoService = pedidoService;
         this.usuarioService = usuarioService;
         this.productoService = productoService;
     }
 
+    // ============================
+    // MENÚ PRINCIPAL
+    // ============================
     public void iniciar() {
         int opcion;
 
@@ -63,7 +76,7 @@ public class MenuPedidos {
     }
 
     // ============================
-    // LISTAR
+    // LISTAR PEDIDOS
     // ============================
     private void listar() {
         List<Pedido> lista = pedidoService.listar();
@@ -79,84 +92,57 @@ public class MenuPedidos {
     // ============================
     private void crear() {
 
-        // Mostrar usuarios
-        usuarioService.listar().forEach(u -> System.out.printf(
-            "ID: %d - %s %s\n", u.getId(), u.getNombre(), u.getApellido()
-        ));
+        // 1. Seleccionar usuario
+        System.out.println("\nUsuarios disponibles:");
+        usuarioService.listar().forEach(System.out::println);
 
-        System.out.print("ID usuario: ");
+        System.out.print("ID del usuario: ");
         Long idUsuario = leerLong();
 
+        // 2. Cargar detalles del pedido
         List<DetallePedido> detalles = new ArrayList<>();
-        String continuar = "S";
 
+        String continuar;
         do {
-            listarProductos();
+            System.out.println("\nProductos disponibles:");
+            productoService.listar().forEach(System.out::println);
 
-            System.out.print("ID producto: ");
+            System.out.print("ID del producto: ");
             Long idProd = leerLong();
-
-            Producto prod = productoService.buscarPorId(idProd);
-            if (prod == null || prod.isEliminado()) {
-                System.out.println("Producto inválido.");
-                continue;
-            }
 
             System.out.print("Cantidad: ");
             int cantidad = leerEntero();
 
-            if (cantidad <= 0) {
-                System.out.println("Cantidad inválida.");
-                continue;
+            // Creamos un DetallePedido temporal solo para pasar datos al service
+            Producto prod = productoService.buscarPorId(idProd);
+            if (prod == null || prod.isEliminado()) {
+                System.out.println("Producto inválido.");
+            } else {
+                double subtotal = prod.getPrecio() * cantidad;
+                detalles.add(new DetallePedido(cantidad, subtotal, prod));
             }
 
-            if (cantidad > prod.getStock()) {
-                System.out.println("Stock insuficiente.");
-                continue;
-            }
-
-            double subtotal = prod.getPrecio() * cantidad;
-            detalles.add(new DetallePedido(cantidad, subtotal, prod));
-
-            System.out.print("Agregar otro detalle? (S/N): ");
+            System.out.print("¿Agregar otro producto? (S/N): ");
             continuar = scanner.nextLine();
 
         } while (continuar.equalsIgnoreCase("S"));
 
-        // Formas de pago
-        System.out.println("Formas de pago:");
+        // 3. Seleccionar forma de pago
+        System.out.println("\nFormas de pago:");
         for (FormaPago fp : FormaPago.values()) {
-            System.out.println(fp.ordinal() + " - " + fp);
+            System.out.println("- " + fp);
         }
 
-        System.out.print("Seleccione forma de pago: ");
-        int fpIndex = leerEntero();
-        FormaPago formaPago = FormaPago.values()[fpIndex];
+        System.out.print("Forma de pago: ");
+        String fpStr = scanner.nextLine();
+        FormaPago formaPago = FormaPago.valueOf(fpStr.toUpperCase());
 
-        Pedido nuevo = pedidoService.crear(idUsuario, detalles, formaPago);
-
-        if (nuevo != null) {
+        // 4. Crear pedido
+        try {
+            Pedido nuevo = pedidoService.crear(idUsuario, detalles, formaPago);
             System.out.println("Pedido creado con ID: " + nuevo.getId());
-            System.out.println("Total: $" + nuevo.getTotal());
-        } else {
-            System.out.println("Error al crear el pedido.");
-        }
-    }
-
-    // ============================
-    // LISTAR PRODUCTOS
-    // ============================
-    private void listarProductos() {
-        System.out.println("=== Productos disponibles ===");
-        for (Producto p : productoService.listar()) {
-            System.out.printf(
-                "ID: %d - %s - $%.2f - Stock: %d - Categoría: %s\n",
-                p.getId(),
-                p.getNombre(),
-                p.getPrecio(),
-                p.getStock(),
-                p.getCategoria().getNombre()
-            );
+        } catch (EntidadNoEncontradaException | DatoInvalidoException | StockInsuficienteException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -165,27 +151,41 @@ public class MenuPedidos {
     // ============================
     private void actualizar() {
         listar();
-        System.out.print("ID pedido: ");
+        System.out.print("ID del pedido a actualizar: ");
         Long id = leerLong();
 
-        System.out.println("Estados:");
+        Pedido p = pedidoService.buscarPorId(id);
+        if (p == null || p.isEliminado()) {
+            System.out.println("Pedido no encontrado o eliminado.");
+            return;
+        }
+
+        // Nuevo estado
+        System.out.println("\nEstados disponibles:");
         for (Estado e : Estado.values()) {
-            System.out.println(e.ordinal() + " - " + e);
+            System.out.println("- " + e);
         }
-        System.out.print("Nuevo estado: ");
-        int estIndex = leerEntero();
-        Estado estado = Estado.values()[estIndex];
 
-        System.out.println("Formas de pago:");
+        System.out.print("Nuevo estado (enter para mantener): ");
+        String estadoStr = scanner.nextLine();
+        Estado nuevoEstado = estadoStr.isEmpty() ? null : Estado.valueOf(estadoStr.toUpperCase());
+
+        // Nueva forma de pago
+        System.out.println("\nFormas de pago:");
         for (FormaPago fp : FormaPago.values()) {
-            System.out.println(fp.ordinal() + " - " + fp);
+            System.out.println("- " + fp);
         }
-        System.out.print("Nueva forma de pago: ");
-        int fpIndex = leerEntero();
-        FormaPago formaPago = FormaPago.values()[fpIndex];
 
-        boolean ok = pedidoService.actualizar(id, estado, formaPago);
-        System.out.println(ok ? "Pedido actualizado." : "No se pudo actualizar.");
+        System.out.print("Nueva forma de pago (enter para mantener): ");
+        String fpStr = scanner.nextLine();
+        FormaPago nuevaFormaPago = fpStr.isEmpty() ? null : FormaPago.valueOf(fpStr.toUpperCase());
+
+        try {
+            pedidoService.actualizar(id, nuevoEstado, nuevaFormaPago);
+            System.out.println("Pedido actualizado.");
+        } catch (EntidadNoEncontradaException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     // ============================
@@ -200,13 +200,17 @@ public class MenuPedidos {
         String conf = scanner.nextLine();
 
         if (conf.equalsIgnoreCase("S")) {
-            boolean ok = pedidoService.eliminar(id);
-            System.out.println(ok ? "Pedido eliminado." : "No se pudo eliminar.");
+            try {
+                pedidoService.eliminar(id);
+                System.out.println("Pedido eliminado.");
+            } catch (EntidadNoEncontradaException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
 
     // ============================
-    // MÉTODOS AUXILIARES
+    // MÉTODOS AUXILIARES DE LECTURA
     // ============================
     private int leerEntero() {
         try { return Integer.parseInt(scanner.nextLine()); }
@@ -218,4 +222,3 @@ public class MenuPedidos {
         catch (Exception e) { return -1L; }
     }
 }
-

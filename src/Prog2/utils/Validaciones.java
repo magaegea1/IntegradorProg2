@@ -4,56 +4,54 @@
  */
 package Prog2.utils;
 
+import Prog2.exception.DatoInvalidoException;
+
 /**
  *
  * @author magae
  */
 
 /**
- * Clase para crear métodos que sirven para validar, es una clase utilitaria
+ * Clase utilitaria para validaciones de datos de entrada.
+ * Contiene métodos estáticos y no puede ser instanciada.
  */
 public class Validaciones {
-    
-    // Contructor que impide que se puedan instanciar objetos en esta clase
-    private Validaciones() {
+
+    // Constructor privado para evitar instanciación
+    private Validaciones() {}
+
+     // Valida que un String no sea nulo ni esté vacío.
+    public static void validarString(String valor, String campo) {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new DatoInvalidoException(campo + " no puede estar vacío.");
+        }
     }
 
-    // Métodos
-    // Validar String sirve para validar nombre, apellido, mail, descripción
-    // celular, constraseña
-    public static void validarString(String dato, String campo) {
-        if (dato == null || dato.trim().isEmpty()) {
-            throw new IllegalArgumentException("El campo: " + campo + ", no puede estar vacío.");
+     // Valida que un número Double sea positivo o cero.
+    public static void validarDoublePositivo(Double valor, String campo) {
+        if (valor == null || valor < 0) {
+            throw new DatoInvalidoException(campo + " debe ser un número positivo.");
         }
     }
-    
-    // Validar Double sirve para validar cantidades que deban reales positivos como precio
-    public static void validarDoublePositivo(Double cantidad, String campo) {
-        if (cantidad == null || cantidad < 0) {
-            throw new IllegalArgumentException("El campo: " + campo + ", debe ser un número positivo");
+
+     // Valida que un número entero sea positivo o cero.
+    public static void validarEnteroPositivo(Integer valor, String campo) {
+        if (valor == null || valor < 0) {
+            throw new DatoInvalidoException(campo + " debe ser un entero positivo.");
         }
     }
-    
-    // Validar entero sirve para validar cantidades que deban ser enteros positivos como stock
-    public static void validarEnteroPositivo(int cantidad, String campo) {
-        if (cantidad < 0) {
-            throw new IllegalArgumentException("El campo: " + campo + ", no puede ser negativo");
-        }        
-    }   
-    
-    // Validar el formato del e-mail 
+
+    // Validación básica de formato de email.
     public static void validarEmailBasico(String email) {
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("El email no puede estar vacío.");
+            throw new DatoInvalidoException("El email no puede estar vacío.");
         }
 
         int arroba = email.indexOf("@");
         int punto = email.lastIndexOf(".");
 
         if (arroba < 1 || punto < arroba + 2 || punto == email.length() - 1) {
-            throw new IllegalArgumentException("Formato de email inválido.");
+            throw new DatoInvalidoException("Formato de email inválido.");
         }
     }
-
-        
 }

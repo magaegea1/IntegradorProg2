@@ -16,6 +16,11 @@ import Prog2.interfaces.Calculable;
  * @author magae
  */
 
+/**
+ * Entidad que representa un pedido dentro del sistema.
+ * Hereda ID, eliminado y createdAt desde Base.
+ */
+
 public class Pedido extends Base implements Calculable {
 
     // Atributos
@@ -40,55 +45,60 @@ public class Pedido extends Base implements Calculable {
     // Constructor vacío para menú
     public Pedido() {
         super();
-        this.detalles = new ArrayList<>();
+        this.fecha = LocalDate.now();
+        this.estado = Estado.PENDIENTE;
         this.total = 0.0;
+        this.detalles = new ArrayList<>();
+        this.usuario = null;
+        this.formaPago = null;
     }
 
     // Getters
-    public LocalDate getFecha() {
-        return fecha;
+    public LocalDate getFecha() { 
+        return fecha; 
     }
-
-    public Estado getEstado() {
-        return estado;
+    
+    public Estado getEstado() { 
+        return estado; 
     }
-
-    public Double getTotal() {
-        return total;
+    
+    public Double getTotal() { 
+        return total; 
     }
-
-    public FormaPago getFormaPago() {
-        return formaPago;
+    
+    public FormaPago getFormaPago() { 
+        return formaPago; 
+    }
+    
+    public Usuario getUsuario() { 
+        return usuario; 
     }
 
     public List<DetallePedido> getDetalles() {
-        return detalles;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
+        return List.copyOf(detalles); // evita modificaciones externas
     }
 
     // Setters
-    public void setEstado(Estado estado) {
-        this.estado = estado;
+    public void setEstado(Estado estado) { 
+        this.estado = estado; 
     }
-
-    public void setFormaPago(FormaPago formaPago) {
-        this.formaPago = formaPago;
+    
+    public void setFormaPago(FormaPago formaPago) { 
+        this.formaPago = formaPago; 
     }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    
+    public void setUsuario(Usuario usuario) { 
+        this.usuario = usuario; 
     }
-
-    public void setTotal(Double total) {
-        this.total = total;
+    
+    public void setTotal(Double total) { 
+        this.total = total; 
     }
 
     // ============================================================
-    // IMPLEMENTACIÓN DE Calculable (OBLIGATORIO)
+    // IMPLEMENTACIÓN DE Calculable
     // ============================================================
+    
     @Override
     public void calcularTotal() {
         double suma = 0.0;
@@ -101,19 +111,22 @@ public class Pedido extends Base implements Calculable {
     }
 
     // ============================================================
-    // MÉTODO OBLIGATORIO DEL UML: addDetallePedido
+    // MÉTODO UML: addDetallePedido
     // ============================================================
     public void addDetallePedido(int cantidad, Double subtotal, Producto producto) {
         DetallePedido det = new DetallePedido(cantidad, subtotal, producto);
         this.detalles.add(det);
+        calcularTotal(); // recalcula automáticamente
     }
 
     // ============================================================
-    // MÉTODO OBLIGATORIO DEL UML: findDetallePedidoByProducto
+    // MÉTODO UML: findDetallePedidoByProducto
     // ============================================================
     public DetallePedido findDetallePedidoByProducto(Producto producto) {
         for (DetallePedido d : detalles) {
-            if (d.getProducto() != null && d.getProducto().equals(producto)) {
+            if (!d.isEliminado() &&
+                d.getProducto() != null &&
+                d.getProducto().equals(producto)) {
                 return d;
             }
         }
@@ -121,15 +134,19 @@ public class Pedido extends Base implements Calculable {
     }
 
     // ============================================================
-    // MÉTODO OBLIGATORIO DEL UML: deleteDetallePedidoByProducto
+    // MÉTODO UML: deleteDetallePedidoByProducto (baja lógica)
     // ============================================================
     public void deleteDetallePedidoByProducto(Producto producto) {
-        detalles.removeIf(d -> d.getProducto() != null && d.getProducto().equals(producto));
+        for (DetallePedido d : detalles) {
+            if (d.getProducto() != null && d.getProducto().equals(producto)) {
+                d.setEliminado(true); // baja lógica
+            }
+        }
+        calcularTotal();
     }
 
     // ============================================================
-    // COMPOSICIÓN (OPCIONAL PERO PROFESIONAL)
-    // Si el pedido se elimina, sus detalles también.
+    // COMPOSICIÓN: si el pedido se elimina, sus detalles también
     // ============================================================
     public void eliminarDetalles() {
         for (DetallePedido d : detalles) {

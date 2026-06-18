@@ -10,16 +10,16 @@ package Prog2.exception;
  */
 
 /**
- * Excepción propia utilizada cuando una entidad buscada
- * no existe o no puede ser recuperada desde la colección.
+ * Excepción propia utilizada cuando una operación solicitada
+ * no está permitida según las reglas de negocio del sistema.
  */
-public class EntidadNoEncontradaException extends RuntimeException {
+public class OperacionNoPermitidaException extends RuntimeException {
 
-    public EntidadNoEncontradaException(String mensaje) {
+    public OperacionNoPermitidaException(String mensaje) {
         super(mensaje);
     }
 
-    public EntidadNoEncontradaException(String mensaje, Throwable causa) {
+    public OperacionNoPermitidaException(String mensaje, Throwable causa) {
         super(mensaje, causa);
     }
 }

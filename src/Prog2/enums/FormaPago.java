@@ -8,6 +8,11 @@ package Prog2.enums;
  *
  * @author magae
  */
+
+/**
+ * Formas de pago disponibles para un Pedido según el UML.
+ */
+
 public enum FormaPago {
     TARJETA,
     TRANSFERENCIA,

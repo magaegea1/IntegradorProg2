@@ -8,6 +8,11 @@ package Prog2.entities;
  *
  * @author magae
  */
+
+/**
+ * Entidad que representa un producto dentro del sistema.
+ * Hereda ID, eliminado y createdAt desde Base.
+ */
 public class Producto extends Base {
 
     // Atributos
@@ -29,12 +34,19 @@ public class Producto extends Base {
         this.stock = stock;
         this.imagen = imagen;
         this.disponible = disponible;
-        this.categoria = categoria; // sin validaciones internas
+        this.categoria = categoria;
     }
 
     // Constructor vacío necesario para menú
     public Producto() {
         super();
+        this.nombre = "";
+        this.descripcion = "";
+        this.imagen = "";
+        this.categoria = null;
+        this.disponible = true;
+        this.stock = 0;
+        this.precio = 0.0;
     }
 
     // Getters
@@ -66,7 +78,7 @@ public class Producto extends Base {
         return categoria;
     }
 
-    // Setters sin validaciones internas
+    // Setters
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -95,10 +107,11 @@ public class Producto extends Base {
         this.categoria = categoria;
     }
 
-    // toString seguro
+    // toString
     @Override
     public String toString() {
         return "Producto{" +
+                "\n\tID = " + getId() +
                 "\n\tNombre = " + nombre +
                 "\n\tPrecio = " + precio +
                 "\n\tDescripcion = " + descripcion +
@@ -109,4 +122,3 @@ public class Producto extends Base {
                 "\n}";
     }
 }
-
