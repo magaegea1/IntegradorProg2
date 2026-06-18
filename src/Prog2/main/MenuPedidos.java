@@ -94,7 +94,12 @@ public class MenuPedidos {
 
         // 1. Seleccionar usuario
         System.out.println("\nUsuarios disponibles:");
-        usuarioService.listar().forEach(System.out::println);
+        List<Usuario> usuarios = usuarioService.listar();
+        if (usuarios.isEmpty()) {
+            System.out.println("No hay usuarios cargados.");
+            return;
+        }
+        usuarios.forEach(System.out::println);
 
         System.out.print("ID del usuario: ");
         Long idUsuario = leerLong();
@@ -105,7 +110,12 @@ public class MenuPedidos {
         String continuar;
         do {
             System.out.println("\nProductos disponibles:");
-            productoService.listar().forEach(System.out::println);
+            List<Producto> productos = productoService.listar();
+            if (productos.isEmpty()) {
+                System.out.println("No hay productos cargados.");
+                break;
+            }
+            productos.forEach(System.out::println);
 
             System.out.print("ID del producto: ");
             Long idProd = leerLong();
@@ -113,13 +123,16 @@ public class MenuPedidos {
             System.out.print("Cantidad: ");
             int cantidad = leerEntero();
 
-            // Creamos un DetallePedido temporal solo para pasar datos al service
-            Producto prod = productoService.buscarPorId(idProd);
-            if (prod == null || prod.isEliminado()) {
-                System.out.println("Producto inválido.");
+            if (cantidad <= 0) {
+                System.out.println("Cantidad inválida.");
             } else {
-                double subtotal = prod.getPrecio() * cantidad;
-                detalles.add(new DetallePedido(cantidad, subtotal, prod));
+                Producto prod = productoService.buscarPorId(idProd);
+                if (prod == null) {
+                    System.out.println("Producto inválido.");
+                } else {
+                    double subtotal = prod.getPrecio() * cantidad;
+                    detalles.add(new DetallePedido(cantidad, subtotal, prod));
+                }
             }
 
             System.out.print("¿Agregar otro producto? (S/N): ");
@@ -135,7 +148,14 @@ public class MenuPedidos {
 
         System.out.print("Forma de pago: ");
         String fpStr = scanner.nextLine();
-        FormaPago formaPago = FormaPago.valueOf(fpStr.toUpperCase());
+        FormaPago formaPago;
+
+        try {
+            formaPago = FormaPago.valueOf(fpStr.toUpperCase());
+        } catch (Exception e) {
+            System.out.println("Forma de pago inválida.");
+            return;
+        }
 
         // 4. Crear pedido
         try {
@@ -155,7 +175,7 @@ public class MenuPedidos {
         Long id = leerLong();
 
         Pedido p = pedidoService.buscarPorId(id);
-        if (p == null || p.isEliminado()) {
+        if (p == null) {
             System.out.println("Pedido no encontrado o eliminado.");
             return;
         }
@@ -168,7 +188,16 @@ public class MenuPedidos {
 
         System.out.print("Nuevo estado (enter para mantener): ");
         String estadoStr = scanner.nextLine();
-        Estado nuevoEstado = estadoStr.isEmpty() ? null : Estado.valueOf(estadoStr.toUpperCase());
+        Estado nuevoEstado = null;
+
+        if (!estadoStr.isEmpty()) {
+            try {
+                nuevoEstado = Estado.valueOf(estadoStr.toUpperCase());
+            } catch (Exception e) {
+                System.out.println("Estado inválido.");
+                return;
+            }
+        }
 
         // Nueva forma de pago
         System.out.println("\nFormas de pago:");
@@ -178,7 +207,16 @@ public class MenuPedidos {
 
         System.out.print("Nueva forma de pago (enter para mantener): ");
         String fpStr = scanner.nextLine();
-        FormaPago nuevaFormaPago = fpStr.isEmpty() ? null : FormaPago.valueOf(fpStr.toUpperCase());
+        FormaPago nuevaFormaPago = null;
+
+        if (!fpStr.isEmpty()) {
+            try {
+                nuevaFormaPago = FormaPago.valueOf(fpStr.toUpperCase());
+            } catch (Exception e) {
+                System.out.println("Forma de pago inválida.");
+                return;
+            }
+        }
 
         try {
             pedidoService.actualizar(id, nuevoEstado, nuevaFormaPago);
@@ -222,3 +260,4 @@ public class MenuPedidos {
         catch (Exception e) { return -1L; }
     }
 }
+

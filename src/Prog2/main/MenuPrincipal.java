@@ -19,15 +19,16 @@ import java.util.Scanner;
  */
 public class MenuPrincipal {
 
+    // Scanner único para toda la aplicación (evita conflictos de lectura).
     private Scanner scanner = new Scanner(System.in);
 
-    // Servicios principales del sistema
+    // Servicios principales del sistema (instanciados una sola vez).
     private CategoriaService categoriaService = new CategoriaService();
     private ProductoService productoService = new ProductoService();
     private UsuarioService usuarioService = new UsuarioService();
     private PedidoService pedidoService = new PedidoService(usuarioService, productoService);
 
-    // Submenús
+    // Submenús que dependen de los servicios.
     private MenuCategorias menuCategorias = new MenuCategorias(scanner, categoriaService, productoService);
     private MenuProductos menuProductos = new MenuProductos(scanner, productoService, categoriaService);
     private MenuUsuarios menuUsuarios = new MenuUsuarios(scanner, usuarioService);
@@ -35,6 +36,7 @@ public class MenuPrincipal {
 
     // ============================
     // MÉTODO PRINCIPAL DEL MENÚ
+    // Muestra las opciones y redirige a los submenús.
     // ============================
     public void iniciar() {
         int opcion;
@@ -64,6 +66,7 @@ public class MenuPrincipal {
 
     // ============================
     // MÉTODO AUXILIAR DE LECTURA
+    // Intenta leer un entero. Si falla, devuelve -1.
     // ============================
     private int leerEntero() {
         try {

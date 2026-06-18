@@ -85,6 +85,12 @@ public class MenuProductos {
     private void listarPorCategoria() {
         System.out.println("\nCategorías disponibles:");
         List<Categoria> categorias = categoriaService.listar();
+
+        if (categorias.isEmpty()) {
+            System.out.println("No hay categorías cargadas.");
+            return;
+        }
+
         categorias.forEach(System.out::println);
 
         System.out.print("ID de categoría: ");
@@ -92,7 +98,7 @@ public class MenuProductos {
 
         Categoria categoria = categoriaService.buscarPorId(idCat);
 
-        if (categoria == null || categoria.isEliminado()) {
+        if (categoria == null) {
             System.out.println("Categoría no encontrada o eliminada.");
             return;
         }
@@ -137,7 +143,7 @@ public class MenuProductos {
 
         try {
             Categoria categoria = categoriaService.buscarPorId(idCat);
-            if (categoria == null || categoria.isEliminado()) {
+            if (categoria == null) {
                 throw new EntidadNoEncontradaException("La categoría no existe o está eliminada.");
             }
 
@@ -161,18 +167,34 @@ public class MenuProductos {
         Long id = leerLong();
 
         Producto p = productoService.buscarPorId(id);
-        if (p == null || p.isEliminado()) {
+        if (p == null) {
             System.out.println("Producto no encontrado o eliminado.");
             return;
         }
 
         System.out.print("Nuevo precio (enter para mantener): ");
         String precioStr = scanner.nextLine();
-        Double precio = precioStr.isEmpty() ? null : Double.parseDouble(precioStr);
+        Double precio = null;
+        if (!precioStr.isEmpty()) {
+            try {
+                precio = Double.parseDouble(precioStr);
+            } catch (Exception e) {
+                System.out.println("Precio inválido.");
+                return;
+            }
+        }
 
         System.out.print("Nuevo stock (enter para mantener): ");
         String stockStr = scanner.nextLine();
-        Integer stock = stockStr.isEmpty() ? null : Integer.parseInt(stockStr);
+        Integer stock = null;
+        if (!stockStr.isEmpty()) {
+            try {
+                stock = Integer.parseInt(stockStr);
+            } catch (Exception e) {
+                System.out.println("Stock inválido.");
+                return;
+            }
+        }
 
         System.out.println("\nCategorías disponibles:");
         categoriaService.listar().forEach(System.out::println);
@@ -182,11 +204,16 @@ public class MenuProductos {
         Categoria categoria = null;
 
         if (!catStr.isEmpty()) {
-            Long idCat = Long.parseLong(catStr);
-            categoria = categoriaService.buscarPorId(idCat);
+            try {
+                Long idCat = Long.parseLong(catStr);
+                categoria = categoriaService.buscarPorId(idCat);
 
-            if (categoria == null || categoria.isEliminado()) {
-                System.out.println("Categoría inválida.");
+                if (categoria == null) {
+                    System.out.println("Categoría inválida.");
+                    return;
+                }
+            } catch (Exception e) {
+                System.out.println("ID inválido.");
                 return;
             }
         }

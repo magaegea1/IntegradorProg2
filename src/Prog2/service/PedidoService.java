@@ -13,18 +13,24 @@ import Prog2.enums.FormaPago;
 import Prog2.exception.DatoInvalidoException;
 import Prog2.exception.EntidadNoEncontradaException;
 import Prog2.exception.StockInsuficienteException;
-import Prog2.utils.Validaciones;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  *
  * @author magae
  */
 
+/**
+ * Servicio encargado de gestionar las operaciones relacionadas con Pedido.
+ * Implementa las historias de usuario HU-PED-01 a HU-PED-04.
+ */
 public class PedidoService {
 
-    // Atributos
+    // Lista interna que almacena todos los pedidos (activos y eliminados).
     private List<Pedido> pedidos;
+
+    // Dependencias necesarias para validar usuario y productos.
     private UsuarioService usuarioService;
     private ProductoService productoService;
 
@@ -37,6 +43,7 @@ public class PedidoService {
 
     // ============================
     // LISTAR (HU-PED-01)
+    // Devuelve solo pedidos activos.
     // ============================
     public List<Pedido> listar() {
         List<Pedido> activos = new ArrayList<>();
@@ -50,10 +57,11 @@ public class PedidoService {
 
     // ============================
     // BUSCAR POR ID
+    // Devuelve el pedido si existe y no está eliminado.
     // ============================
     public Pedido buscarPorId(Long id) {
         for (Pedido p : pedidos) {
-            if (p.getId().equals(id)) {
+            if (p.getId().equals(id) && !p.isEliminado()) {
                 return p;
             }
         }
@@ -62,12 +70,13 @@ public class PedidoService {
 
     // ============================
     // CREAR (HU-PED-02)
+    // Valida usuario, agrega detalles, calcula total y guarda el pedido.
     // ============================
     public Pedido crear(Long idUsuario, List<DetallePedido> detalles, FormaPago formaPago) {
 
         // 1. Validar usuario
         Usuario usuario = usuarioService.buscarPorId(idUsuario);
-        if (usuario == null || usuario.isEliminado()) {
+        if (usuario == null) {
             throw new EntidadNoEncontradaException("El usuario no existe o está eliminado.");
         }
 
@@ -90,12 +99,13 @@ public class PedidoService {
 
     // ============================
     // AGREGAR DETALLE (interno)
+    // Valida producto, stock y agrega el detalle al pedido.
     // ============================
     private void agregarDetalle(Pedido pedido, Long idProducto, int cantidad) {
 
         // 1. Validar producto
         Producto prod = productoService.buscarPorId(idProducto);
-        if (prod == null || prod.isEliminado()) {
+        if (prod == null) {
             throw new EntidadNoEncontradaException("El producto no existe o está eliminado.");
         }
 
@@ -117,7 +127,6 @@ public class PedidoService {
 
         // 5. Agregar al pedido (composición)
         pedido.getDetalles().add(det);
-        pedido.addDetallePedido(cantidad, subtotal, prod);
 
         // 6. Descontar stock
         prod.setStock(prod.getStock() - cantidad);
@@ -125,6 +134,7 @@ public class PedidoService {
 
     // ============================
     // CALCULAR TOTAL
+    // Suma los subtotales de cada detalle.
     // ============================
     private void calcularTotal(Pedido pedido) {
         double total = 0.0;
@@ -138,12 +148,13 @@ public class PedidoService {
 
     // ============================
     // ACTUALIZAR (HU-PED-03)
+    // Permite modificar estado o forma de pago.
     // ============================
     public boolean actualizar(Long idPedido, Estado nuevoEstado, FormaPago nuevaFormaPago) {
 
         Pedido p = buscarPorId(idPedido);
 
-        if (p == null || p.isEliminado()) {
+        if (p == null) {
             throw new EntidadNoEncontradaException("El pedido no existe o está eliminado.");
         }
 
@@ -160,12 +171,13 @@ public class PedidoService {
 
     // ============================
     // ELIMINAR (HU-PED-04)
+    // Baja lógica del pedido.
     // ============================
     public boolean eliminar(Long id) {
 
         Pedido p = buscarPorId(id);
 
-        if (p == null || p.isEliminado()) {
+        if (p == null) {
             throw new EntidadNoEncontradaException("El pedido no existe o ya está eliminado.");
         }
 

@@ -17,9 +17,14 @@ import java.util.List;
  * @author magae
  */
 
+/**
+ * Servicio encargado de gestionar las operaciones relacionadas con Usuario.
+ * Implementa las historias de usuario HU-USR-01 a HU-USR-04.
+ */
+
 public class UsuarioService {
     
-    // Atributos
+    // Lista interna que almacena todos los usuarios (activos y eliminados).
     private List<Usuario> usuarios;
     
     // Constructor
@@ -29,6 +34,7 @@ public class UsuarioService {
 
     // ============================
     // LISTAR (HU-USR-01)
+    // Devuelve solo usuarios activos (no eliminados).
     // ============================
     public List<Usuario> listar() {
         List<Usuario> activos = new ArrayList<>();
@@ -42,6 +48,8 @@ public class UsuarioService {
 
     // ============================
     // CREAR (HU-USR-02)
+    // Valida datos, verifica mail único y crea un nuevo usuario.
+    // La contraseña inicial es el celular, según la consigna.
     // ============================
     public Usuario crear(String nombre, String apellido, String mail, String celular) {
 
@@ -50,12 +58,12 @@ public class UsuarioService {
         Validaciones.validarEmailBasico(mail);
         Validaciones.validarString(celular, "Celular del usuario");
 
-        // Validar mail único
+        // Regla de negocio: mail único entre usuarios activos
         if (existeMail(mail)) {
             throw new DatoInvalidoException("Ya existe un usuario con ese mail.");
         }
 
-        // Contraseña inicial = celular
+        // Contraseña inicial = celular (según HU-USR-02)
         String contraseniaInicial = celular;
 
         Usuario nuevo = new Usuario(
@@ -73,6 +81,7 @@ public class UsuarioService {
 
     // ============================
     // MÉTODO AUXILIAR
+    // Verifica si existe un mail en usuarios activos.
     // ============================
     private boolean existeMail(String mail) {
         for (Usuario u : usuarios) {
@@ -85,10 +94,11 @@ public class UsuarioService {
 
     // ============================
     // BUSCAR POR ID
+    // Devuelve el usuario si existe y no está eliminado.
     // ============================
     public Usuario buscarPorId(Long id) {
         for (Usuario u : usuarios) {
-            if (u.getId().equals(id)) {
+            if (u.getId().equals(id) && !u.isEliminado()) {
                 return u;
             }
         }
@@ -97,13 +107,14 @@ public class UsuarioService {
 
     // ============================
     // EDITAR (HU-USR-03)
+    // Permite editar nombre, apellido, mail o celular si los parámetros no son null.
     // ============================
     public boolean editar(Long id, String nuevoNombre, String nuevoApellido,
                           String nuevoMail, String nuevoCelular) {
 
         Usuario u = buscarPorId(id);
 
-        if (u == null || u.isEliminado()) {
+        if (u == null) {
             throw new EntidadNoEncontradaException("El usuario no existe o está eliminado.");
         }
 
@@ -143,16 +154,18 @@ public class UsuarioService {
 
     // ============================
     // ELIMINAR (HU-USR-04)
+    // Baja lógica del usuario.
     // ============================
     public boolean eliminar(Long id) {
 
         Usuario u = buscarPorId(id);
 
-        if (u == null || u.isEliminado()) {
+        if (u == null) {
             throw new EntidadNoEncontradaException("El usuario no existe o ya está eliminado.");
         }
 
-        u.setEliminado(true);
+        u.setEliminado(true); // baja lógica
         return true;
     }
 }
+

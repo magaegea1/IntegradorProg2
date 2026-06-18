@@ -21,11 +21,12 @@ import java.util.Scanner;
  * Permite listar, crear, editar y eliminar usuarios.
  * Interactúa con UsuarioService.
  */
-
 public class MenuUsuarios {
     
-    // Atributos
+    // Scanner compartido desde el menú principal
     private Scanner scanner;
+
+    // Servicio necesario para gestionar usuarios
     private UsuarioService usuarioService;
 
     // Constructor
@@ -108,7 +109,7 @@ public class MenuUsuarios {
         Long id = leerLong();
 
         Usuario u = usuarioService.buscarPorId(id);
-        if (u == null || u.isEliminado()) {
+        if (u == null) {
             System.out.println("Usuario no encontrado o eliminado.");
             return;
         }

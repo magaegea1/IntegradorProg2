@@ -18,10 +18,16 @@ import java.util.Scanner;
  * @author magae
  */
 
+/**
+ * Menú de gestión de Categorías.
+ * Implementa las opciones de listar, crear, editar y eliminar categorías.
+ */
 public class MenuCategorias {
 
-    // Atributos
+    // Scanner compartido desde el menú principal
     private Scanner scanner;
+
+    // Servicios necesarios
     private CategoriaService categoriaService;
     private ProductoService productoService;
 
@@ -32,6 +38,9 @@ public class MenuCategorias {
         this.productoService = productoService;
     }
 
+    // ============================
+    // MENÚ PRINCIPAL DE CATEGORÍAS
+    // ============================
     public void iniciar() {
         int opcion;
 
@@ -58,6 +67,9 @@ public class MenuCategorias {
         } while (opcion != 0);
     }
 
+    // ============================
+    // LISTAR CATEGORÍAS
+    // ============================
     private void listar() {
         List<Categoria> lista = categoriaService.listar();
         if (lista.isEmpty()) {
@@ -67,6 +79,9 @@ public class MenuCategorias {
         lista.forEach(System.out::println);
     }
 
+    // ============================
+    // CREAR CATEGORÍA
+    // ============================
     private void crear() {
         System.out.print("Nombre: ");
         String nombre = scanner.nextLine();
@@ -82,23 +97,27 @@ public class MenuCategorias {
         }
     }
 
+    // ============================
+    // EDITAR CATEGORÍA
+    // ============================
     private void editar() {
         listar();
         System.out.print("ID a editar: ");
         Long id = leerLong();
 
-        System.out.print("Nuevo nombre (enter para mantener): ");
-        String nombre = scanner.nextLine();
-
-        System.out.print("Nueva descripción (enter para mantener): ");
-        String descripcion = scanner.nextLine();
-
         try {
             Categoria actual = categoriaService.buscarPorId(id);
-            if (actual == null || actual.isEliminado()) {
+            if (actual == null) {
                 throw new EntidadNoEncontradaException("La categoría no existe o está eliminada.");
             }
 
+            System.out.print("Nuevo nombre (enter para mantener): ");
+            String nombre = scanner.nextLine();
+
+            System.out.print("Nueva descripción (enter para mantener): ");
+            String descripcion = scanner.nextLine();
+
+            // Mantener valores actuales si el usuario deja vacío
             if (nombre.isEmpty()) nombre = actual.getNombre();
             if (descripcion.isEmpty()) descripcion = actual.getDescripcion();
 
@@ -110,6 +129,9 @@ public class MenuCategorias {
         }
     }
 
+    // ============================
+    // ELIMINAR CATEGORÍA
+    // ============================
     private void eliminar() {
         listar();
         System.out.print("ID a eliminar: ");
@@ -128,6 +150,9 @@ public class MenuCategorias {
         }
     }
 
+    // ============================
+    // MÉTODOS AUXILIARES DE LECTURA
+    // ============================
     private int leerEntero() {
         try { return Integer.parseInt(scanner.nextLine()); }
         catch (Exception e) { return -1; }
@@ -138,4 +163,3 @@ public class MenuCategorias {
         catch (Exception e) { return -1L; }
     }
 }
-
