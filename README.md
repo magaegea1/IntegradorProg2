@@ -104,14 +104,14 @@ src/
 ## 🎥 Video Demostración
 
 🔗 **Enlace al video:**  
-*(agregar link cuando esté listo)*
+*https://drive.google.com/file/d/1BEfUGCw6-tXvpsWI1g0vOuVISV9Cwe_w/view*
 
 ---
 
 ## 📄 Documento PDF
 
-🔗 **Enlace al PDF:**  
-*(agregar link cuando esté listo)*
+🔗 **En este repositorio**  
+
 
 ---
 
