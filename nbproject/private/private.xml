@@ -4,6 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/magae/OneDrive/Documentos/UTN%20-%20TUPaD/Cuatrimestre%202/Programación%202/Evaluaciones/TPI/IntegradorProg2/src/Prog2/entities/Base.java</file>
+            <file>file:/D:/magae/OneDrive/Documentos/UTN%20-%20TUPaD/Cuatrimestre%202/Programación%202/Evaluaciones/TPI/IntegradorProg2/src/Prog2/exception/DatoInvalidoException.java</file>
+            <file>file:/D:/magae/OneDrive/Documentos/UTN%20-%20TUPaD/Cuatrimestre%202/Programación%202/Evaluaciones/TPI/IntegradorProg2/src/Prog2/exception/EntidadNoEncontradaException.java</file>
+            <file>file:/D:/magae/OneDrive/Documentos/UTN%20-%20TUPaD/Cuatrimestre%202/Programación%202/Evaluaciones/TPI/IntegradorProg2/src/Prog2/exception/OperacionNoPermitidaException.java</file>
+            <file>file:/D:/magae/OneDrive/Documentos/UTN%20-%20TUPaD/Cuatrimestre%202/Programación%202/Evaluaciones/TPI/IntegradorProg2/src/Prog2/exception/StockInsuficienteException.java</file>
+            <file>file:/D:/magae/OneDrive/Documentos/UTN%20-%20TUPaD/Cuatrimestre%202/Programación%202/Evaluaciones/TPI/IntegradorProg2/src/Prog2/utils/Validaciones.java</file>
         </group>
     </open-files>
 </project-private>
