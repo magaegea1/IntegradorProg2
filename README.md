@@ -110,7 +110,8 @@ src/
 
 ## 📄 Documento PDF
 
-🔗 **En este repositorio**  
+🔗 **En este repositorio - Link al video:**
+*https://github.com/magaegea1/IntegradorProg2/blob/master/TPI_Programaci%C3%B3n2%20Grupo%2028.pdf*
 
 
 ---
